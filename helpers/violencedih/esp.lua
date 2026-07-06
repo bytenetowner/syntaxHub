@@ -8,6 +8,12 @@ local function nmqgettorso(nmqcharacter)
 end
 
 nmqespmodule.nmqcreateboxesp = function(nmqplayer)
+	local nmqteam = nmqplayer.Team
+	if not nmqteam or (nmqteam.Name ~= "Killer" and nmqteam.Name ~= "Survivors") then
+		nmqespmodule.nmqremoveboxesp(nmqplayer)
+		return
+	end
+
 	local nmqcharacter = nmqplayer.Character
 	if not nmqcharacter then return end
 	local nmqtorso = nmqgettorso(nmqcharacter)
@@ -18,7 +24,7 @@ nmqespmodule.nmqcreateboxesp = function(nmqplayer)
 	end
 
 	local nmqcolor = Color3.fromRGB(255, 255, 255)
-	if nmqplayer.Team and nmqplayer.Team.Name == "Killer" then
+	if nmqteam.Name == "Killer" then
 		nmqcolor = Color3.fromRGB(255, 0, 0)
 	end
 
@@ -69,6 +75,12 @@ nmqespmodule.nmqremoveboxesp = function(nmqplayer)
 end
 
 nmqespmodule.nmqcreatenameesp = function(nmqplayer)
+	local nmqteam = nmqplayer.Team
+	if not nmqteam or (nmqteam.Name ~= "Killer" and nmqteam.Name ~= "Survivors") then
+		nmqespmodule.nmqremovenameesp(nmqplayer)
+		return
+	end
+
 	local nmqcharacter = nmqplayer.Character
 	if not nmqcharacter then return end
 	local nmqtorso = nmqgettorso(nmqcharacter)
@@ -79,7 +91,7 @@ nmqespmodule.nmqcreatenameesp = function(nmqplayer)
 	end
 
 	local nmqcolor = Color3.fromRGB(255, 255, 255)
-	if nmqplayer.Team and nmqplayer.Team.Name == "Killer" then
+	if nmqteam.Name == "Killer" then
 		nmqcolor = Color3.fromRGB(255, 0, 0)
 	end
 
