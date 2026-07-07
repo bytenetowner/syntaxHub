@@ -1,166 +1,93 @@
-local nmqplayers = game:GetService("Players")
-local nmqespmodule = {}
-nmqespmodule.nmqboxenabled = false
-nmqespmodule.nmqnameenabled = false
-
-local function nmqgettorso(nmqcharacter)
-	return nmqcharacter:FindFirstChild("Torso") or nmqcharacter:FindFirstChild("UpperTorso") or nmqcharacter:FindFirstChild("HumanoidRootPart")
+if not getgenv().vdhelpers then
+	getgenv().vdhelpers = {}
 end
 
-nmqespmodule.nmqcreateboxesp = function(nmqplayer)
-	local nmqteam = nmqplayer.Team
-	if not nmqteam or (nmqteam.Name ~= "Killer" and nmqteam.Name ~= "Survivors") then
-		nmqespmodule.nmqremoveboxesp(nmqplayer)
-		return
-	end
+local poiplayers = game:GetService("Players")
+local poirunservice = game:GetService("RunService")
+local poicamera = workspace.CurrentCamera
 
-	local nmqcharacter = nmqplayer.Character
-	if not nmqcharacter then return end
-	local nmqtorso = nmqgettorso(nmqcharacter)
-	if not nmqtorso then return end
+local poiespmodule = {}
+poiespmodule.poiboxenabled = false
+poiespmodule.poinameenabled = false
 
-	if nmqtorso:FindFirstChild("VerySpecificBoxEspBillboardGui") then
-		nmqtorso.VerySpecificBoxEspBillboardGui:Destroy()
-	end
+local poiregistry = {}
 
-	local nmqcolor = Color3.fromRGB(255, 255, 255)
-	if nmqteam.Name == "Killer" then
-		nmqcolor = Color3.fromRGB(255, 0, 0)
-	end
-
-	local nmqbillboardgui = Instance.new("BillboardGui")
-	nmqbillboardgui.Name = "VerySpecificBoxEspBillboardGui"
-	nmqbillboardgui.AlwaysOnTop = true
-	nmqbillboardgui.Size = UDim2.new(4, 0, 5, 0)
-	nmqbillboardgui.Adornee = nmqtorso
-	nmqbillboardgui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-	nmqbillboardgui.Parent = nmqtorso
-
-	local nmqoutlineframe = Instance.new("Frame")
-	nmqoutlineframe.Name = "VerySpecificBoxEspOutlineFrame"
-	nmqoutlineframe.Size = UDim2.new(1, 0, 1, 0)
-	nmqoutlineframe.BackgroundTransparency = 1
-	nmqoutlineframe.ZIndex = 1
-	nmqoutlineframe.Parent = nmqbillboardgui
-
-	local nmqoutlineuistroke = Instance.new("UIStroke")
-	nmqoutlineuistroke.Name = "VerySpecificBoxEspOutlineUiStroke"
-	nmqoutlineuistroke.Thickness = 2
-	nmqoutlineuistroke.Color = Color3.fromRGB(0, 0, 0)
-	nmqoutlineuistroke.Parent = nmqoutlineframe
-
-	local nmqframe = Instance.new("Frame")
-	nmqframe.Name = "VerySpecificBoxEspFrame"
-	nmqframe.Size = UDim2.new(1, 0, 1, 0)
-	nmqframe.BackgroundTransparency = 1
-	nmqframe.ZIndex = 2
-	nmqframe.Parent = nmqbillboardgui
-
-	local nmquistroke = Instance.new("UIStroke")
-	nmquistroke.Name = "VerySpecificBoxEspUiStroke"
-	nmquistroke.Thickness = 1.5
-	nmquistroke.Color = nmqcolor
-	nmquistroke.Parent = nmqframe
+local function poigettorso(poicharacter)
+	return poicharacter:FindFirstChild("Torso") or poicharacter:FindFirstChild("UpperTorso") or poicharacter:FindFirstChild("HumanoidRootPart")
 end
 
-nmqespmodule.nmqremoveboxesp = function(nmqplayer)
-	local nmqcharacter = nmqplayer.Character
-	if not nmqcharacter then return end
-	local nmqtorso = nmqgettorso(nmqcharacter)
-	if not nmqtorso then return end
-	local nmqgui = nmqtorso:FindFirstChild("VerySpecificBoxEspBillboardGui")
-	if nmqgui then
-		nmqgui:Destroy()
+local function poiaddplayer(poiplayer)
+	if poiplayer == poiplayers.LocalPlayer then return end
+	poiregistry[poiplayer] = {
+		box = Drawing.new("Square"),
+		text = Drawing.new("Text")
+	}
+	poiregistry[poiplayer].box.Thickness = 1.5
+	poiregistry[poiplayer].box.Filled = false
+	poiregistry[poiplayer].text.Size = 11
+	poiregistry[poiplayer].text.Center = true
+	poiregistry[poiplayer].text.Outline = true
+	poiregistry[poiplayer].text.Font = 3
+end
+
+local function poiremoveplayer(poiplayer)
+	if poiregistry[poiplayer] then
+		poiregistry[poiplayer].box:Remove()
+		poiregistry[poiplayer].text:Remove()
+		poiregistry[poiplayer] = nil
 	end
 end
 
-nmqespmodule.nmqcreatenameesp = function(nmqplayer)
-	local nmqteam = nmqplayer.Team
-	if not nmqteam or (nmqteam.Name ~= "Killer" and nmqteam.Name ~= "Survivors") then
-		nmqespmodule.nmqremovenameesp(nmqplayer)
-		return
-	end
-
-	local nmqcharacter = nmqplayer.Character
-	if not nmqcharacter then return end
-	local nmqtorso = nmqgettorso(nmqcharacter)
-	if not nmqtorso then return end
-
-	if nmqtorso:FindFirstChild("VerySpecificNameEspBillboardGui") then
-		nmqtorso.VerySpecificNameEspBillboardGui:Destroy()
-	end
-
-	local nmqcolor = Color3.fromRGB(255, 255, 255)
-	if nmqteam.Name == "Killer" then
-		nmqcolor = Color3.fromRGB(255, 0, 0)
-	end
-
-	local nmqbillboardgui = Instance.new("BillboardGui")
-	nmqbillboardgui.Name = "VerySpecificNameEspBillboardGui"
-	nmqbillboardgui.AlwaysOnTop = true
-	nmqbillboardgui.Size = UDim2.new(4, 0, 5, 0)
-	nmqbillboardgui.Adornee = nmqtorso
-	nmqbillboardgui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-	nmqbillboardgui.Parent = nmqtorso
-
-	local nmqtextlabel = Instance.new("TextLabel")
-	nmqtextlabel.Name = "VerySpecificNameEspTextLabel"
-	nmqtextlabel.Size = UDim2.new(1, 0, 1, 0)
-	nmqtextlabel.Position = UDim2.new(0, 0, 0, 0)
-	nmqtextlabel.BackgroundTransparency = 1
-	nmqtextlabel.Text = nmqplayer.Name
-	nmqtextlabel.TextColor3 = nmqcolor
-	nmqtextlabel.TextSize = 14
-	nmqtextlabel.Font = Enum.Font.SourceSansBold
-	nmqtextlabel.TextXAlignment = Enum.TextXAlignment.Center
-	nmqtextlabel.TextYAlignment = Enum.TextYAlignment.Center
-	nmqtextlabel.Parent = nmqbillboardgui
-
-	local nmqtextstroke = Instance.new("UIStroke")
-	nmqtextstroke.Name = "VerySpecificTextLabelUiStroke"
-	nmqtextstroke.Thickness = 0.5
-	nmqtextstroke.Color = Color3.fromRGB(0, 0, 0)
-	nmqtextstroke.Parent = nmqtextlabel
-end
-
-nmqespmodule.nmqremovenameesp = function(nmqplayer)
-	local nmqcharacter = nmqplayer.Character
-	if not nmqcharacter then return end
-	local nmqtorso = nmqgettorso(nmqcharacter)
-	if not nmqtorso then return end
-	local nmqgui = nmqtorso:FindFirstChild("VerySpecificNameEspBillboardGui")
-	if nmqgui then
-		nmqgui:Destroy()
-	end
-end
-
-local function nmqsetupesp(nmqplayer)
-	nmqplayer.CharacterAdded:Connect(function(nmqcharacter)
-		task.wait(0.5)
-		if nmqespmodule.nmqboxenabled then
-			nmqespmodule.nmqcreateboxesp(nmqplayer)
+poirunservice.RenderStepped:Connect(function()
+	for poiplayer, poidraws in pairs(poiregistry) do
+		local poichar = poiplayer.Character
+		local poitorso = poichar and poigettorso(poichar)
+		if poitorso and (poiespmodule.poiboxenabled or poiespmodule.poinameenabled) then
+			local poipos, poionboard = poicamera:WorldToViewportPoint(poitorso.Position)
+			if poionboard then
+				local poiheight = (poicamera.ViewportSize.Y / poipos.Z) * 3.5
+				local poiwidth = poiheight * 0.75
+				local poicolor = Color3.fromRGB(255, 255, 255)
+				if poiplayer.Team and poiplayer.Team.Name == "Killer" then
+					poicolor = Color3.fromRGB(255, 0, 0)
+				end
+				if poiespmodule.poiboxenabled then
+					poidraws.box.Visible = true
+					poidraws.box.Size = Vector2.new(poiwidth, poiheight)
+					poidraws.box.Position = Vector2.new(poipos.X - poiwidth / 2, poipos.Y - poiheight / 2)
+					poidraws.box.Color = poicolor
+				else
+					poidraws.box.Visible = false
+				end
+				if poiespmodule.poinameenabled then
+					local poinamepos, poinameonboard = poicamera:WorldToViewportPoint(poitorso.Position + Vector3.new(0, 5, 0))
+					if poinameonboard then
+						poidraws.text.Visible = true
+						poidraws.text.Position = Vector2.new(poinamepos.X, poinamepos.Y)
+						poidraws.text.Text = poiplayer.Name
+						poidraws.text.Color = poicolor
+					else
+						poidraws.text.Visible = false
+					end
+				else
+					poidraws.text.Visible = false
+				end
+			else
+				poidraws.box.Visible = false
+				poidraws.text.Visible = false
+			end
+		else
+			poidraws.box.Visible = false
+			poidraws.text.Visible = false
 		end
-		if nmqespmodule.nmqnameenabled then
-			nmqespmodule.nmqcreatenameesp(nmqplayer)
-		end
-	end)
-
-	nmqplayer:GetPropertyChangedSignal("Team"):Connect(function()
-		if nmqespmodule.nmqboxenabled then
-			nmqespmodule.nmqcreateboxesp(nmqplayer)
-		end
-		if nmqespmodule.nmqnameenabled then
-			nmqespmodule.nmqcreatenameesp(nmqplayer)
-		end
-	end)
-end
-
-nmqplayers.PlayerAdded:Connect(nmqsetupesp)
-
-for nmqi, nmqv in ipairs(nmqplayers:GetPlayers()) do
-	if nmqv ~= nmqplayers.LocalPlayer then
-		nmqsetupesp(nmqv)
 	end
+end)
+
+poiplayers.PlayerAdded:Connect(poiaddplayer)
+poiplayers.PlayerRemoving:Connect(poiremoveplayer)
+
+for poii, poiuser in ipairs(poiplayers:GetPlayers()) do
+	poiaddplayer(poiuser)
 end
 
-return nmqespmodule
+getgenv().vdhelpers.poiespmodule = poiespmodule
