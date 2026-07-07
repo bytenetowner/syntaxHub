@@ -2,103 +2,106 @@ if not getgenv().vdhelpers then
 	getgenv().vdhelpers = {}
 end
 
-local uioplayers = game:GetService("Players")
-local uiorunservice = game:GetService("RunService")
-local uiocamera = workspace.CurrentCamera
+local ytrplayers = game:GetService("Players")
+local ytrrunservice = game:GetService("RunService")
+local ytrcamera = workspace.CurrentCamera
 
-local uioespmodule = {}
-uioespmodule.poiboxenabled = false
-uioespmodule.poinameenabled = false
+local ytrespmodule = {}
+ytrespmodule.poiboxenabled = false
+ytrespmodule.poinameenabled = false
 
-local uioregistry = {}
+local ytrregistry = {}
 
-local function uiogettorso(uiocharacter)
-	return uiocharacter:FindFirstChild("Torso") or uiocharacter:FindFirstChild("UpperTorso") or uiocharacter:FindFirstChild("HumanoidRootPart")
+local function ytrgettorso(ytrcharacter)
+	return ytrcharacter:FindFirstChild("Torso") or ytrcharacter:FindFirstChild("UpperTorso") or ytrcharacter:FindFirstChild("HumanoidRootPart")
 end
 
-local function uioaddplayer(uioplayer)
-	if uioplayer == uioplayers.LocalPlayer then return end
-	uioregistry[uioplayer] = {
-		box = Drawing.new("Square"),
-		outline = Drawing.new("Square"),
-		text = Drawing.new("Text")
+local function ytraddplayer(ytrplayer)
+	if ytrplayer == ytrplayers.LocalPlayer then return end
+	ytrregistry[ytrplayer] = {
+		ytrbox = Drawing.new("Square"),
+		ytrboxoutline = Drawing.new("Square"),
+		ytrtext = Drawing.new("Text")
 	}
-	uioregistry[uioplayer].outline.Thickness = 3
-	uioregistry[uioplayer].outline.Filled = false
-	uioregistry[uioplayer].outline.Color = Color3.fromRGB(0, 0, 0)
+	ytrregistry[ytrplayer].ytrboxoutline.Thickness = 1
+	ytrregistry[ytrplayer].ytrboxoutline.Filled = false
+	ytrregistry[ytrplayer].ytrboxoutline.Color = Color3.fromRGB(0, 0, 0)
+	ytrregistry[ytrplayer].ytrboxoutline.ZIndex = 1
 	
-	uioregistry[uioplayer].box.Thickness = 1
-	uioregistry[uioplayer].box.Filled = false
+	ytrregistry[ytrplayer].ytrbox.Thickness = 1
+	ytrregistry[ytrplayer].ytrbox.Filled = false
+	ytrregistry[ytrplayer].ytrbox.ZIndex = 2
 	
-	uioregistry[uioplayer].text.Size = 11
-	uioregistry[uioplayer].text.Center = true
-	uioregistry[uioplayer].text.Outline = true
-	uioregistry[uioplayer].text.Font = 3
+	ytrregistry[ytrplayer].ytrtext.Size = 11
+	ytrregistry[ytrplayer].ytrtext.Center = true
+	ytrregistry[ytrplayer].ytrtext.Outline = true
+	ytrregistry[ytrplayer].ytrtext.Font = 3
+	ytrregistry[ytrplayer].ytrtext.ZIndex = 3
 end
 
-local function uioremoveplayer(uioplayer)
-	if uioregistry[uioplayer] then
-		uioregistry[uioplayer].box:Remove()
-		uioregistry[uioplayer].outline:Remove()
-		uioregistry[uioplayer].text:Remove()
-		uioregistry[uioplayer] = nil
+local function ytrremoveplayer(ytrplayer)
+	if ytrregistry[ytrplayer] then
+		ytrregistry[ytrplayer].ytrbox:Remove()
+		ytrregistry[ytrplayer].ytrboxoutline:Remove()
+		ytrregistry[ytrplayer].ytrtext:Remove()
+		ytrregistry[ytrplayer] = nil
 	end
 end
 
-uiorunservice.RenderStepped:Connect(function()
-	for uioplayer, uiodraws in pairs(uioregistry) do
-		local uiochar = uioplayer.Character
-		local uiotorso = uiochar and uiogettorso(uiochar)
-		if uiotorso and (uioespmodule.poiboxenabled or uioespmodule.poinameenabled) then
-			local uiopos, uioonboard = uiocamera:WorldToViewportPoint(uiotorso.Position)
-			if uioonboard then
-				local uioheight = (uiocamera.ViewportSize.Y / uiopos.Z) * 3.5
-				local uiowidth = uioheight * 0.75
-				local uiocolor = Color3.fromRGB(255, 255, 255)
-				if uioplayer.Team and uioplayer.Team.Name == "Killer" then
-					uiocolor = Color3.fromRGB(255, 0, 0)
+ytrrunservice.RenderStepped:Connect(function()
+	for ytrplayer, ytrdraws in pairs(ytrregistry) do
+		local ytrchar = ytrplayer.Character
+		local ytrtorso = ytrchar and ytrgettorso(ytrchar)
+		if ytrtorso and (ytrespmodule.poiboxenabled or ytrespmodule.poinameenabled) then
+			local ytrpos, ytronboard = ytrcamera:WorldToViewportPoint(ytrtorso.Position)
+			if ytronboard then
+				local ytrheight = (ytrcamera.ViewportSize.Y / ytrpos.Z) * 3.5
+				local ytrwidth = ytrheight * 0.75
+				local ytrcolor = Color3.fromRGB(255, 255, 255)
+				if ytrplayer.Team and ytrplayer.Team.Name == "Killer" then
+					ytrcolor = Color3.fromRGB(255, 0, 0)
 				end
-				if uioespmodule.poiboxenabled then
-					uiodraws.outline.Visible = true
-					uiodraws.outline.Size = Vector2.new(uiowidth, uioheight)
-					uiodraws.outline.Position = Vector2.new(uiopos.X - uiowidth / 2, uiopos.Y - uioheight / 2)
+				if ytrespmodule.poiboxenabled then
+					ytrdraws.ytrboxoutline.Visible = true
+					ytrdraws.ytrboxoutline.Size = Vector2.new(ytrwidth + 2, ytrheight + 2)
+					ytrdraws.ytrboxoutline.Position = Vector2.new(ytrpos.X - ytrwidth / 2 - 1, ytrpos.Y - ytrheight / 2 - 1)
 					
-					uiodraws.box.Visible = true
-					uiodraws.box.Size = Vector2.new(uiowidth, uioheight)
-					uiodraws.box.Position = Vector2.new(uiopos.X - uiowidth / 2, uiopos.Y - uioheight / 2)
-					uiodraws.box.Color = uiocolor
+					ytrdraws.ytrbox.Visible = true
+					ytrdraws.ytrbox.Size = Vector2.new(ytrwidth, ytrheight)
+					ytrdraws.ytrbox.Position = Vector2.new(ytrpos.X - ytrwidth / 2, ytrpos.Y - ytrheight / 2)
+					ytrdraws.ytrbox.Color = ytrcolor
 				else
-					uiodraws.outline.Visible = false
-					uiodraws.box.Visible = false
+					ytrdraws.ytrboxoutline.Visible = false
+					ytrdraws.ytrbox.Visible = false
 				end
-				if uioespmodule.poinameenabled then
-					local uioboxtop = uiopos.Y - uioheight / 2
-					local uiopixelperstud = (uiocamera.ViewportSize.Y / (2 * math.tan(math.rad(uiocamera.FieldOfView) / 2))) / uiopos.Z
-					uiodraws.text.Visible = true
-					uiodraws.text.Position = Vector2.new(uiopos.X, uioboxtop - uiopixelperstud - 11)
-					uiodraws.text.Text = uioplayer.Name
-					uiodraws.text.Color = uiocolor
+				if ytrespmodule.poinameenabled then
+					local ytrboxtop = ytrpos.Y - ytrheight / 2
+					local ytrpixelperstud = (ytrcamera.ViewportSize.Y / (2 * math.tan(math.rad(ytrcamera.FieldOfView) / 2))) / ytrpos.Z
+					ytrdraws.ytrtext.Visible = true
+					ytrdraws.ytrtext.Position = Vector2.new(ytrpos.X, ytrboxtop - ytrpixelperstud - 11)
+					ytrdraws.ytrtext.Text = ytrplayer.Name
+					ytrdraws.ytrtext.Color = ytrcolor
 				else
-					uiodraws.text.Visible = false
+					ytrdraws.ytrtext.Visible = false
 				end
 			else
-				uiodraws.outline.Visible = false
-				uiodraws.box.Visible = false
-				uiodraws.text.Visible = false
+				ytrdraws.ytrboxoutline.Visible = false
+				ytrdraws.ytrbox.Visible = false
+				ytrdraws.ytrtext.Visible = false
 			end
 		else
-			uiodraws.outline.Visible = false
-			uiodraws.box.Visible = false
-			uiodraws.text.Visible = false
+			ytrdraws.ytrboxoutline.Visible = false
+			ytrdraws.ytrbox.Visible = false
+			ytrdraws.ytrtext.Visible = false
 		end
 	end
 end)
 
-uioplayers.PlayerAdded:Connect(uioaddplayer)
-uioplayers.PlayerRemoving:Connect(uioremoveplayer)
+ytrplayers.PlayerAdded:Connect(ytraddplayer)
+ytrplayers.PlayerRemoving:Connect(ytrremoveplayer)
 
-for uioi, uiouser in ipairs(uioplayers:GetPlayers()) do
-	uioaddplayer(uiouser)
+for ytri, ytruser in ipairs(ytrplayers:GetPlayers()) do
+	ytraddplayer(ytruser)
 end
 
-getgenv().vdhelpers.poiespmodule = uioespmodule
+getgenv().vdhelpers.poiespmodule = ytrespmodule
