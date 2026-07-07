@@ -2,89 +2,103 @@ if not getgenv().vdhelpers then
 	getgenv().vdhelpers = {}
 end
 
-local poiplayers = game:GetService("Players")
-local poirunservice = game:GetService("RunService")
-local poicamera = workspace.CurrentCamera
+local uioplayers = game:GetService("Players")
+local uiorunservice = game:GetService("RunService")
+local uiocamera = workspace.CurrentCamera
 
-local poiespmodule = {}
-poiespmodule.poiboxenabled = false
-poiespmodule.poinameenabled = false
+local uioespmodule = {}
+uioespmodule.poiboxenabled = false
+uioespmodule.poinameenabled = false
 
-local poiregistry = {}
+local uioregistry = {}
 
-local function poigettorso(poicharacter)
-	return poicharacter:FindFirstChild("Torso") or poicharacter:FindFirstChild("UpperTorso") or poicharacter:FindFirstChild("HumanoidRootPart")
+local function uiogettorso(uiocharacter)
+	return uiocharacter:FindFirstChild("Torso") or uiocharacter:FindFirstChild("UpperTorso") or uiocharacter:FindFirstChild("HumanoidRootPart")
 end
 
-local function poiaddplayer(poiplayer)
-	if poiplayer == poiplayers.LocalPlayer then return end
-	poiregistry[poiplayer] = {
+local function uioaddplayer(uioplayer)
+	if uioplayer == uioplayers.LocalPlayer then return end
+	uioregistry[uioplayer] = {
 		box = Drawing.new("Square"),
+		outline = Drawing.new("Square"),
 		text = Drawing.new("Text")
 	}
-	poiregistry[poiplayer].box.Thickness = 1.5
-	poiregistry[poiplayer].box.Filled = false
-	poiregistry[poiplayer].text.Size = 11
-	poiregistry[poiplayer].text.Center = true
-	poiregistry[poiplayer].text.Outline = true
-	poiregistry[poiplayer].text.Font = 3
+	uioregistry[uioplayer].outline.Thickness = 3
+	uioregistry[uioplayer].outline.Filled = false
+	uioregistry[uioplayer].outline.Color = Color3.fromRGB(0, 0, 0)
+	
+	uioregistry[uioplayer].box.Thickness = 1
+	uioregistry[uioplayer].box.Filled = false
+	
+	uioregistry[uioplayer].text.Size = 11
+	uioregistry[uioplayer].text.Center = true
+	uioregistry[uioplayer].text.Outline = true
+	uioregistry[uioplayer].text.Font = 3
 end
 
-local function poiremoveplayer(poiplayer)
-	if poiregistry[poiplayer] then
-		poiregistry[poiplayer].box:Remove()
-		poiregistry[poiplayer].text:Remove()
-		poiregistry[poiplayer] = nil
+local function uioremoveplayer(uioplayer)
+	if uioregistry[uioplayer] then
+		uioregistry[uioplayer].box:Remove()
+		uioregistry[uioplayer].outline:Remove()
+		uioregistry[uioplayer].text:Remove()
+		uioregistry[uioplayer] = nil
 	end
 end
 
-poirunservice.RenderStepped:Connect(function()
-	for poiplayer, poidraws in pairs(poiregistry) do
-		local poichar = poiplayer.Character
-		local poitorso = poichar and poigettorso(poichar)
-		if poitorso and (poiespmodule.poiboxenabled or poiespmodule.poinameenabled) then
-			local poipos, poionboard = poicamera:WorldToViewportPoint(poitorso.Position)
-			if poionboard then
-				local poiheight = (poicamera.ViewportSize.Y / poipos.Z) * 3.5
-				local poiwidth = poiheight * 0.75
-				local poicolor = Color3.fromRGB(255, 255, 255)
-				if poiplayer.Team and poiplayer.Team.Name == "Killer" then
-					poicolor = Color3.fromRGB(255, 0, 0)
+uiorunservice.RenderStepped:Connect(function()
+	for uioplayer, uiodraws in pairs(uioregistry) do
+		local uiochar = uioplayer.Character
+		local uiotorso = uiochar and uiogettorso(uiochar)
+		if uiotorso and (uioespmodule.poiboxenabled or uioespmodule.poinameenabled) then
+			local uiopos, uioonboard = uiocamera:WorldToViewportPoint(uiotorso.Position)
+			if uioonboard then
+				local uioheight = (uiocamera.ViewportSize.Y / uiopos.Z) * 3.5
+				local uiowidth = uioheight * 0.75
+				local uiocolor = Color3.fromRGB(255, 255, 255)
+				if uioplayer.Team and uioplayer.Team.Name == "Killer" then
+					uiocolor = Color3.fromRGB(255, 0, 0)
 				end
-				if poiespmodule.poiboxenabled then
-					poidraws.box.Visible = true
-					poidraws.box.Size = Vector2.new(poiwidth, poiheight)
-					poidraws.box.Position = Vector2.new(poipos.X - poiwidth / 2, poipos.Y - poiheight / 2)
-					poidraws.box.Color = poicolor
+				if uioespmodule.poiboxenabled then
+					uiodraws.outline.Visible = true
+					uiodraws.outline.Size = Vector2.new(uiowidth, uioheight)
+					uiodraws.outline.Position = Vector2.new(uiopos.X - uiowidth / 2, uiopos.Y - uioheight / 2)
+					
+					uiodraws.box.Visible = true
+					uiodraws.box.Size = Vector2.new(uiowidth, uioheight)
+					uiodraws.box.Position = Vector2.new(uiopos.X - uiowidth / 2, uiopos.Y - uioheight / 2)
+					uiodraws.box.Color = uiocolor
 				else
-					poidraws.box.Visible = false
+					uiodraws.outline.Visible = false
+					uiodraws.box.Visible = false
 				end
-				if poiespmodule.poinameenabled then
-					local poiboxtop = poipos.Y - poiheight / 2
-					local poipixelperstud = (poicamera.ViewportSize.Y / (2 * math.tan(math.rad(poicamera.FieldOfView) / 2))) / poipos.Z
-					poidraws.text.Visible = true
-					poidraws.text.Position = Vector2.new(poipos.X, poiboxtop - poipixelperstud - 11)
-					poidraws.text.Text = poiplayer.Name
-					poidraws.text.Color = poicolor
+				if uioespmodule.poinameenabled then
+					local uioboxtop = uiopos.Y - uioheight / 2
+					local uiopixelperstud = (uiocamera.ViewportSize.Y / (2 * math.tan(math.rad(uiocamera.FieldOfView) / 2))) / uiopos.Z
+					uiodraws.text.Visible = true
+					uiodraws.text.Position = Vector2.new(uiopos.X, uioboxtop - uiopixelperstud - 11)
+					uiodraws.text.Text = uioplayer.Name
+					uiodraws.text.Color = uiocolor
 				else
-					poidraws.text.Visible = false
+					uiodraws.text.Visible = false
 				end
 			else
-				poidraws.box.Visible = false
-				poidraws.text.Visible = false
+				uiodraws.outline.Visible = false
+				uiodraws.box.Visible = false
+				uiodraws.text.Visible = false
 			end
 		else
-			poidraws.box.Visible = false
-			poidraws.text.Visible = false
+			uiodraws.outline.Visible = false
+			uiodraws.box.Visible = false
+			uiodraws.text.Visible = false
 		end
 	end
 end)
 
-poiplayers.PlayerAdded:Connect(poiaddplayer)
-poiplayers.PlayerRemoving:Connect(poiremoveplayer)
+uioplayers.PlayerAdded:Connect(uioaddplayer)
+uioplayers.PlayerRemoving:Connect(uioremoveplayer)
 
-for poii, poiuser in ipairs(poiplayers:GetPlayers()) do
-	poiaddplayer(poiuser)
+for uioi, uiouser in ipairs(uioplayers:GetPlayers()) do
+	uioaddplayer(uiouser)
 end
 
-getgenv().vdhelpers.poiespmodule = poiespmodule
+getgenv().vdhelpers.poiespmodule = uioespmodule
