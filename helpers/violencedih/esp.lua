@@ -24,7 +24,7 @@ local function poiaddplayer(poiplayer)
 	}
 	poiregistry[poiplayer].box.Thickness = 1.5
 	poiregistry[poiplayer].box.Filled = false
-	poiregistry[poiplayer].text.Size = 14
+	poiregistry[poiplayer].text.Size = 11
 	poiregistry[poiplayer].text.Center = true
 	poiregistry[poiplayer].text.Outline = true
 	poiregistry[poiplayer].text.Font = 3
@@ -60,15 +60,12 @@ poirunservice.RenderStepped:Connect(function()
 					poidraws.box.Visible = false
 				end
 				if poiespmodule.poinameenabled then
-					local poinamepos, poinameonboard = poicamera:WorldToViewportPoint(poitorso.Position + Vector3.new(0, 2, 0))
-					if poinameonboard then
-						poidraws.text.Visible = true
-						poidraws.text.Position = Vector2.new(poinamepos.X, poinamepos.Y)
-						poidraws.text.Text = poiplayer.Name
-						poidraws.text.Color = poicolor
-					else
-						poidraws.text.Visible = false
-					end
+					local poiboxtop = poipos.Y - poiheight / 2
+					local poipixelperstud = (poicamera.ViewportSize.Y / (2 * math.tan(math.rad(poicamera.FieldOfView) / 2))) / poipos.Z
+					poidraws.text.Visible = true
+					poidraws.text.Position = Vector2.new(poipos.X, poiboxtop - poipixelperstud - 11)
+					poidraws.text.Text = poiplayer.Name
+					poidraws.text.Color = poicolor
 				else
 					poidraws.text.Visible = false
 				end
